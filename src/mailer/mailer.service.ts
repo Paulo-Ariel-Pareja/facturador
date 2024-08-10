@@ -1,51 +1,38 @@
+import { MailerService as MailerServiceNest } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-
-import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailerService {
-  private host: string;
-  private port: string;
-  private user: string;
-  private pass: string;
-  private defaultMail: string;
-  private bcc: string;
+  constructor(private mailerService: MailerServiceNest) {}
 
-  constructor(private readonly configService: ConfigService) {
-    this.host = this.configService.getOrThrow('emailConfig.host');
-    this.port = this.configService.getOrThrow('emailConfig.port');
-    this.user = this.configService.getOrThrow('emailConfig.user');
-    this.pass = this.configService.getOrThrow('emailConfig.pass');
-    this.defaultMail = this.configService.getOrThrow('emailConfig.defaultMail');
-    this.bcc = this.configService.get('emailConfig.bcc');
-  }
-  sendEmail = async (
-    to: string,
-    subject: string,
-    html: string,
-    cc?: string,
-  ) => {
-    const transporter = nodemailer.createTransport({
-      host: this.host,
-      port: Number(this.port),
-      secure: false,
-      auth: {
-        user: this.user,
-        pass: this.pass,
+  async sendFc(to: string, name: string, url: string, bcc?: string) {
+    const info = await this.mailerService.sendMail({
+      to,
+      bcc,
+      subject: 'Te enviamos la factura de tu compra',
+      template: './send-fc',
+      context: {
+        name,
+        url,
       },
     });
+    console.log('Message sent: %s', info.messageId);
+  }
 
-    const info = await transporter.sendMail({
-      from: this.defaultMail, // sender address
+  async sendHtmlPlain(
+    subject: string,
+    to: string[],
+    html: string,
+    cc?: string,
+    bcc?: string,
+  ) {
+    const info = await this.mailerService.sendMail({
       to,
       cc,
-      bcc: this.bcc,
+      bcc,
       subject,
-      //text: 'Hello world?',
       html, // html body
     });
-
     console.log('Message sent: %s', info.messageId);
-  };
+  }
 }

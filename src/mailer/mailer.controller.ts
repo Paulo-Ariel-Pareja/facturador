@@ -7,11 +7,21 @@ export class MailerController {
 
   @Post()
   create() {
-    return this.mailerService.sendEmail(
-      'some@email.com',
+    return this.mailerService.sendHtmlPlain(
       'Hello ✔',
+      ['some@email.es'],
       '<p>HOLA TEST</p>',
-      'someCC@email.com',
+      'some2@email.com',
+      'some3@email.com',
+    );
+  }
+
+  @Post('hbs')
+  createHbs() {
+    return this.mailerService.sendFc(
+      'some@email.com',
+      'Google',
+      'https://www.google.com',
     );
   }
 }

@@ -7,4 +7,5 @@ export default registerAs('emailConfig', () => ({
   pass: process.env.MAIL_PASSWORD,
   defaultMail: process.env.DEFAULT_MAIL_FROM,
   bcc: process.env.DEFAULT_MAIL_BCC,
+  emergency: process.env.MAILS_EMERGENCY,
 }));

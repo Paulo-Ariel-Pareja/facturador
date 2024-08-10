@@ -15,6 +15,8 @@ export class CronjobWebService {
   private readonly logger = new Logger(CronjobWebService.name);
   private codmed: string;
   private publicUrl: string;
+  private bcc: string;
+  private emergency: string[];
 
   constructor(
     private readonly webService: WebService,
@@ -26,6 +28,10 @@ export class CronjobWebService {
   ) {
     this.codmed = this.configService.getOrThrow('companyConfig.CODMED');
     this.publicUrl = this.configService.getOrThrow('erpConfig.urlFc');
+    this.bcc = this.configService.get('emailConfig.bcc');
+    this.emergency = this.configService
+      .getOrThrow('emailConfig.emergency')
+      .split(',');
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
@@ -38,7 +44,7 @@ export class CronjobWebService {
         this.logger.log('NO HAY OPERACIONES PARA FACTURAR');
         return;
       }
-      //const id_canal = '1524989946'; // remoto
+
       const id_canal = operationToFC.id_canal;
 
       const ID01: string = uuidv4();
@@ -242,7 +248,6 @@ export class CronjobWebService {
         id_mercadopago: operation[0].id_mercadopago,
       });
 
-      // en testing apagar esto!!!
       await this.webService.updateFcId(
         id_canal,
         `127_B${NUMCOM}`,
@@ -253,19 +258,32 @@ export class CronjobWebService {
       const mail = operation[0].email;
 
       this.logger.log(`ENVIANDO MAIL A: ${mail}`);
-      const html = `
-      <p>Estimado cliente,</p>
-      <br>
-      <p>Su factura puede ser descargada haciendo click en el siguiente link:</p>
-      <p><a href="${this.publicUrl}${ID01}" target="_blank" rel="noopener noreferrer">Ver factura</a></p>`;
-      await this.mailerService.sendEmail(
+
+      await this.mailerService.sendFc(
         mail,
-        'Te enviamos la factura de tu compra',
-        html,
+        DENOMI,
+        `${this.publicUrl}${ID01}`,
+        this.bcc,
       );
       this.logger.log('FIN PROCESO');
     } catch (error) {
       this.logger.error(error);
+
+      const html = `
+      <p>SE VA A APAGAR EL FACTURADOR,</p>
+      <p>por favor resuelva inconveniente antes de volver a iniciar proceso</p>
+      <br>
+      <p>Error message: ${error.message}</p>
+      <br>
+      <p>Error:</p>
+      <p>${error}</p>`;
+
+      await this.mailerService.sendHtmlPlain(
+        '[EMERGENCY] - facturador',
+        this.emergency,
+        html,
+      );
+      process.exit(1);
     }
   }
 
