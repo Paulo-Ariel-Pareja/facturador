@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HttpModule } from '@nestjs/axios';
 
 import { WebService } from './web.service';
-import { WebController } from './web.controller';
 
 import { CronjobWebService } from './cronjob-web.service';
 import { ErpService } from '../erp/erp.service';
@@ -18,7 +17,7 @@ import { Counter } from '../counter/entities/counter.entity';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([Web, Articulo, Counter])],
-  controllers: [WebController],
+  controllers: [],
   providers: [
     WebService,
     CronjobWebService,
