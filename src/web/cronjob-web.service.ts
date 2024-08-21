@@ -16,6 +16,7 @@ export class CronjobWebService {
   private codmed: string;
   private publicUrl: string;
   private bcc: string;
+  private numsuc: number;
   private emergency: string[];
 
   constructor(
@@ -29,6 +30,7 @@ export class CronjobWebService {
     this.codmed = this.configService.getOrThrow('companyConfig.CODMED');
     this.publicUrl = this.configService.getOrThrow('erpConfig.urlFc');
     this.bcc = this.configService.get('emailConfig.bcc');
+    this.numsuc = Number(this.configService.getOrThrow('companyConfig.NUMSUC'));
     this.emergency = this.configService
       .getOrThrow('emailConfig.emergency')
       .split(',');
@@ -250,7 +252,7 @@ export class CronjobWebService {
 
       await this.webService.updateFcId(
         id_canal,
-        `127_B${NUMCOM}`,
+        `${this.numsuc}_B${NUMCOM}`,
         operation.length,
       );
 
