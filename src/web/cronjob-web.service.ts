@@ -15,6 +15,7 @@ export class CronjobWebService {
   private readonly logger = new Logger(CronjobWebService.name);
   private codmed: string;
   private publicUrl: string;
+  private publicGiftUrl: string;
   private bcc: string;
   private numsuc: number;
   private emergency: string[];
@@ -29,6 +30,7 @@ export class CronjobWebService {
   ) {
     this.codmed = this.configService.getOrThrow('companyConfig.CODMED');
     this.publicUrl = this.configService.getOrThrow('erpConfig.urlFc');
+    this.publicGiftUrl = this.publicUrl.replace('PDF2', 'PDFR');
     this.bcc = this.configService.get('emailConfig.bcc');
     this.numsuc = Number(this.configService.getOrThrow('companyConfig.NUMSUC'));
     this.emergency = this.configService
@@ -265,6 +267,7 @@ export class CronjobWebService {
         mail,
         DENOMI,
         `${this.publicUrl}${ID01}`,
+        `${this.publicGiftUrl}${ID01}`,
         this.bcc,
       );
       this.logger.log('FIN PROCESO');

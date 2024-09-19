@@ -5,7 +5,13 @@ import { Injectable } from '@nestjs/common';
 export class MailerService {
   constructor(private mailerService: MailerServiceNest) {}
 
-  async sendFc(to: string, name: string, url: string, bcc?: string) {
+  async sendFc(
+    to: string,
+    name: string,
+    url: string,
+    urlCambio: string,
+    bcc?: string,
+  ) {
     const info = await this.mailerService.sendMail({
       to,
       bcc,
@@ -14,6 +20,7 @@ export class MailerService {
       context: {
         name,
         url,
+        urlCambio,
       },
     });
     console.log('Message sent: %s', info.messageId);
