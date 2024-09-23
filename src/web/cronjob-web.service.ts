@@ -19,6 +19,7 @@ export class CronjobWebService {
   private bcc: string;
   private numsuc: number;
   private emergency: string[];
+  private readonly defaultNumDoc = '11111111';
 
   constructor(
     private readonly webService: WebService,
@@ -62,8 +63,10 @@ export class CronjobWebService {
         await this.webService.getOperationFromDb(id_canal);
 
       const DENOMI: string = operation[0].comprador;
-      let NUMDOC = operation[0].documento;
-      if (!NUMDOC || NUMDOC.length === 0) NUMDOC = '11111111';
+      let rawDocument = operation[0].documento;
+      if (!rawDocument) rawDocument = this.defaultNumDoc;
+      let NUMDOC = rawDocument.replace(/\D/g, '');
+      if (NUMDOC.length === 0) NUMDOC = this.defaultNumDoc;
       const CODDOC = NUMDOC.length <= 8 ? '96' : '80';
       const subTotal = operation.reduce((n, { sub_total }) => n + sub_total, 0);
       const descuento = operation.reduce(
